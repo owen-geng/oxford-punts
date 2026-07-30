@@ -31,15 +31,21 @@ header h1 { font-size: 2rem; letter-spacing: 0.02em; }
 
 .tabs {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-wrap: nowrap;
   gap: 0.25rem;
   background: var(--river-dark);
   padding: 0.4rem 0.5rem;
   position: sticky;
   top: 0;
   z-index: 10;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+.tabs::-webkit-scrollbar { display: none; }
+/* centers when there's room, scrolls from the true start when there isn't */
+.tab-btn:first-child { margin-left: auto; }
+.tab-btn:last-child { margin-right: auto; }
 .tab-btn {
   font-family: inherit;
   font-size: 0.95rem;
@@ -49,6 +55,8 @@ header h1 { font-size: 2rem; letter-spacing: 0.02em; }
   border-radius: 4px;
   padding: 0.45rem 0.8rem;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .tab-btn:hover { background: rgba(255, 255, 255, 0.12); }
 .tab-btn.active { background: var(--accent); color: #fff; }
@@ -240,7 +248,27 @@ footer {
 }
 footer a { color: var(--accent); }
 
-@media (max-width: 480px) {
+@media (max-width: 560px) {
+  header { padding: 1.1rem 1rem 0.9rem; }
+  header h1 { font-size: 1.6rem; }
+  .tagline { font-size: 0.85rem; }
+  h2 { font-size: 1.3rem; }
+  main { padding: 1.2rem 0.8rem 2.5rem; }
+
   .session-row { flex-wrap: wrap; }
   .session-row select { flex-basis: 100%; }
+  .session-row input { min-width: 0; }
+
+  /* full-width, thumb-sized action buttons */
+  #save-session, #save-settle, #add-row {
+    display: block;
+    width: 100%;
+    padding: 0.7rem 1.1rem;
+  }
+  .sum-badge { display: block; text-align: center; margin-right: 0; }
+
+  #add-player-form input { flex: 1; width: auto; min-width: 0; }
+
+  .tx .reverse-btn { padding: 0.45rem 0.9rem; }
+  .break-buttons button { flex: 1 1 100%; padding: 0.6rem 1rem; }
 }
