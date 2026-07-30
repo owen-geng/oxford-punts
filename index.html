@@ -3,74 +3,116 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Oxford Punts</title>
-  <style>
-    :root {
-      --ink: #1f2a24;
-      --river: #2e6e5e;
-      --paper: #f7f5ef;
-      --accent: #b98a2f;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: Georgia, 'Times New Roman', serif;
-      background: var(--paper);
-      color: var(--ink);
-      line-height: 1.6;
-    }
-    header {
-      background: var(--river);
-      color: var(--paper);
-      padding: 4rem 1.5rem;
-      text-align: center;
-    }
-    header h1 {
-      font-size: 2.8rem;
-      letter-spacing: 0.02em;
-    }
-    header p {
-      margin-top: 0.75rem;
-      font-style: italic;
-      opacity: 0.9;
-    }
-    main {
-      max-width: 42rem;
-      margin: 0 auto;
-      padding: 3rem 1.5rem;
-    }
-    main h2 {
-      color: var(--river);
-      margin-bottom: 0.75rem;
-    }
-    main p + h2 { margin-top: 2rem; }
-    a { color: var(--accent); }
-    footer {
-      text-align: center;
-      padding: 2rem 1.5rem;
-      font-size: 0.9rem;
-      color: #6b7268;
-    }
-  </style>
+  <title>Oxford Punts — Poker Ledger</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header>
     <h1>Oxford Punts</h1>
-    <p>Messing about in boats on the Cherwell and the Isis</p>
+    <p class="tagline">Append-only double-entry poker ledger</p>
   </header>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab-btn active" data-tab="balances">Balances</button>
+    <button class="tab-btn" data-tab="session">New Session</button>
+    <button class="tab-btn" data-tab="settle">Settle Up</button>
+    <button class="tab-btn" data-tab="players">Players</button>
+    <button class="tab-btn" data-tab="ledger">Ledger</button>
+    <button class="tab-btn" data-tab="properties">Properties</button>
+  </nav>
+
   <main>
-    <h2>Welcome</h2>
-    <p>
-      This site is just getting started. Soon it will have everything you need to
-      know about punting in Oxford — where to hire a punt, how not to fall in,
-      and the best stretches of river for a lazy afternoon.
-    </p>
-    <h2>Coming soon</h2>
-    <p>
-      Boathouse guides, punting technique, and river maps.
-    </p>
+    <div id="banner" class="banner" hidden></div>
+
+    <section id="tab-balances" class="tab active">
+      <h2>Balances</h2>
+      <p class="hint">Positive = owed money, negative = owes money. The bottom row is the whole point.</p>
+      <div class="table-wrap">
+        <table id="balances-table">
+          <thead><tr><th>Player</th><th class="num">Entries</th><th class="num">Balance</th></tr></thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+    </section>
+
+    <section id="tab-session" class="tab">
+      <h2>Record a session</h2>
+      <p class="hint">Enter each player's net result for the night — winners positive, losers negative.
+        The table can't lose money: results must sum to exactly £0.00.</p>
+      <div id="session-rows"></div>
+      <button id="add-row" class="ghost" type="button">+ Add player</button>
+      <div id="session-sum" class="sum-badge">Total: £0.00</div>
+      <input id="session-note" type="text" maxlength="200" placeholder="Note (e.g. Friday game at Keble)">
+      <button id="save-session" class="primary" type="button" disabled>Record session</button>
+      <p id="session-msg" class="msg"></p>
+    </section>
+
+    <section id="tab-settle" class="tab">
+      <h2>Settle up</h2>
+      <p class="hint">Record a cash payment between two players. Classic double entry:
+        one credit, one debit, equal and opposite.</p>
+      <label>Payer (hands over cash)
+        <select id="settle-payer"></select>
+      </label>
+      <label>Payee (receives cash)
+        <select id="settle-payee"></select>
+      </label>
+      <label>Amount (£)
+        <input id="settle-amount" type="number" min="0.01" step="0.01" placeholder="20.00">
+      </label>
+      <input id="settle-note" type="text" maxlength="200" placeholder="Note (optional)">
+      <p id="settle-preview" class="preview"></p>
+      <button id="save-settle" class="primary" type="button" disabled>Record settlement</button>
+      <p id="settle-msg" class="msg"></p>
+    </section>
+
+    <section id="tab-players" class="tab">
+      <h2>Players</h2>
+      <form id="add-player-form">
+        <input id="player-name" type="text" maxlength="40" placeholder="Player name" required>
+        <button class="primary" type="submit">Add player</button>
+      </form>
+      <p id="player-msg" class="msg"></p>
+      <div class="table-wrap">
+        <table id="players-table">
+          <thead><tr><th>Name</th><th>Joined</th><th class="num">Balance</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="tab-ledger" class="tab">
+      <h2>Ledger</h2>
+      <p class="hint">The complete, append-only history. Nothing here can be edited or deleted —
+        mistakes are corrected by posting a linked reversal.</p>
+      <div id="ledger-list"></div>
+    </section>
+
+    <section id="tab-properties" class="tab">
+      <h2>Properties</h2>
+      <p class="hint">Key invariants of this ledger, re-checked live against the current data.</p>
+      <div id="props-list"></div>
+      <div class="break-box">
+        <h3>Try to break it</h3>
+        <p class="hint">Each button attempts a forbidden write from your browser, exactly as a
+          malicious client would. The database refuses every one — the invariants above don't
+          depend on this page behaving well.</p>
+        <div class="break-buttons">
+          <button id="break-direct" class="ghost" type="button">Insert entry directly</button>
+          <button id="break-unbalanced" class="ghost" type="button">Record unbalanced session</button>
+          <button id="break-mutate" class="ghost" type="button">Edit history</button>
+        </div>
+        <pre id="break-output" hidden></pre>
+      </div>
+    </section>
   </main>
+
   <footer>
-    Built with GitHub Pages
+    Built with GitHub Pages + Supabase · <a href="https://github.com/owen-geng/oxford-punts">source</a>
   </footer>
+
+  <script src="config.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
